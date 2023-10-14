@@ -147,7 +147,7 @@ namespace Primitives {
 
 			int xpxl1 = x0;
 			int xpxl2 = x1;
-			float intery = y0;
+			float intery = (float)y0;
 
 			float alpha = 1.0f;
 
@@ -219,10 +219,10 @@ namespace Primitives {
 			float alpha = (float)i / total_height;
 			float beta = (float)(i - (second_half ? t1Y - t0Y : 0)) / segment_height;
 
-			int Ax = t0X + (t2X - t0X) * alpha;
-			int Ay = t0Y + (t2Y - t0Y) * alpha;
-			int Bx = second_half ? t1X + (t2X - t1X) * beta : t0X + (t1X - t0X) * beta;
-			int By = second_half ? t1Y + (t2Y - t1Y) * beta : t0Y + (t1Y - t0Y) * beta;
+			int Ax = (int)(t0X + (t2X - t0X) * alpha);
+			int Ay = (int)(t0Y + (t2Y - t0Y) * alpha);
+			int Bx = (int)(second_half ? t1X + (t2X - t1X) * beta : t0X + (t1X - t0X) * beta);
+			int By = (int)(second_half ? t1Y + (t2Y - t1Y) * beta : t0Y + (t1Y - t0Y) * beta);
 
 			if (Ax > Bx) {
 				swap(Ax, Bx);
@@ -290,5 +290,130 @@ namespace Primitives {
 				}
 			}
 		}
+	}
+
+	const bool* bitmapFont[] = {
+		(bool*)char_Exclamation,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		(bool*)char_Star,
+		nullptr,
+		nullptr,
+		(bool*)char_Dash,
+		nullptr,
+		nullptr,
+		(bool*)char_0,
+		(bool*)char_1,
+		(bool*)char_2,
+		(bool*)char_3,
+		(bool*)char_4,
+		(bool*)char_5,
+		(bool*)char_6,
+		(bool*)char_7,
+		(bool*)char_8,
+		(bool*)char_9,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
+		(bool*)char_A,
+		(bool*)char_B,
+		(bool*)char_C,
+		(bool*)char_D,
+		(bool*)char_E,
+		(bool*)char_F,
+		(bool*)char_G,
+		(bool*)char_H,
+		(bool*)char_I,
+		(bool*)char_J,
+		(bool*)char_K,
+		(bool*)char_L,
+		(bool*)char_M,
+		(bool*)char_N,
+		(bool*)char_O,
+		(bool*)char_P,
+		(bool*)char_Q,
+		(bool*)char_R,
+		(bool*)char_S,
+		(bool*)char_T,
+		(bool*)char_U,
+		(bool*)char_V,
+		(bool*)char_W,
+		(bool*)char_X,
+		(bool*)char_Y,
+		(bool*)char_Z,
+	};
+
+	const char* ToUpperCase(const char* str) {
+		int length = strlen(str);
+		char* result = new char[length + 1];
+
+		for (int i = 0; i < length; i++) {
+			result[i] = toupper(str[i]);
+		}
+
+		result[length] = '\0';
+
+		return result;
+	}
+
+	void RenderText(Window* window, int xx, int yy, const char* text, int fontSize) {
+		int x = xx;
+		int y = yy;
+
+		const char* uppercaseText = ToUpperCase(text);
+		const char* currentLineStart = uppercaseText;
+
+		for (int i = 0; uppercaseText[i] != '\0'; i++) {
+			char character = uppercaseText[i];
+
+			if (character == '\n') {
+				x = xx;
+				y += charHeight * fontSize;
+				currentLineStart = &uppercaseText[i + 1];
+				continue;
+			}
+
+			if (character == ' ') {
+				x += charWidth * fontSize;
+				continue;
+			}
+
+			int charIndex = character - '!';
+
+			if (charIndex >= 0 && charIndex < sizeof(bitmapFont) / sizeof(bool*)) {
+				const bool* charData = bitmapFont[charIndex];
+
+				for (int yy = 0; yy < charHeight; yy++) {
+					for (int xx = 0; xx < charWidth; xx++) {
+						if (charData[yy * charWidth + xx] == 1) {
+							int scaledX = x + static_cast<int>(xx * fontSize);
+							int scaledY = y + static_cast<int>(yy * fontSize);
+
+							for (int i = 0; i < fontSize; i++) {
+								for (int j = 0; j < fontSize; j++) {
+									int pixelX = scaledX + i;
+									int pixelY = scaledY + j;
+									SetPixel(window, pixelX, pixelY, 0xffffff);
+								}
+							}
+						}
+					}
+				}
+
+				x += charWidth * fontSize;
+			}
+		}
+
+
 	}
 }

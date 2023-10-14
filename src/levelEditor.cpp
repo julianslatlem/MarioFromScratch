@@ -23,12 +23,15 @@ int tileSize = 100;
 int activeTileID = 1;
 
 int currentQuestionTexture = 0;
+int currentCoinTexture = 0;
 
 float timeSinceLastUpdate = 0;
 
 std::string installDir;
 
 std::string levelFile = "levels/level1-1.ml";
+
+Texture* previewTexture = new Texture{};
 
 void RenderScene();
 
@@ -89,12 +92,12 @@ void UpdateAverageFPS() {
     timeAccumulator += frameTime;
     frameCount++;
 
-    double interval = 1.0;
+    double interval = 0.2;
 
     if (timeAccumulator >= interval) {
         double averageFPS = frameCount / timeAccumulator;
 
-        std::string windowTitle = "FPS: " + std::to_string(static_cast<int>(averageFPS));
+        std::string windowTitle = "Mario from Scratch | FPS: " + std::to_string(static_cast<int>(averageFPS));
         SetWindowTitle(window, windowTitle.c_str());
 
         timeAccumulator = 0.0;
@@ -193,6 +196,8 @@ std::string CombinePaths(const std::string& path1, const std::string& path2) {
 	}
 }
 
+Texture* coin = new Texture{};
+
 int main(int argc, char* argv[]) {
 	wchar_t buffer[MAX_PATH];
 	if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0) {
@@ -257,15 +262,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-
-
-
-
-
-
-
-
-	window = InitializeWindow(1440, 1275, "Mario from Scratch");
+	window = InitializeWindow(1920, 1080, "Mario from Scratch | FPS: ");
 
 	camera = CreateCamera(1, 1, 1.0f);
 
@@ -285,8 +282,12 @@ int main(int argc, char* argv[]) {
 	Texture* bush2_1 = CreateTexture(CombinePaths(installDir, "textures/bush2-1.png").c_str());
 	Texture* bush2_2 = CreateTexture(CombinePaths(installDir, "textures/bush2-2.png").c_str());
 	Texture* bush2_3 = CreateTexture(CombinePaths(installDir, "textures/bush2-3.png").c_str());
+	Texture* coin1 = CreateTexture(CombinePaths(installDir, "textures/coin.png").c_str());
+	Texture* coin2 = CreateTexture(CombinePaths(installDir, "textures/coin2.png").c_str());
+	Texture* coin3 = CreateTexture(CombinePaths(installDir, "textures/coin3.png").c_str());
 
 	Texture* questionTextures[4] = { questionTexture, questionTexture, questionTexture2, questionTexture3 };
+	Texture* coinTextures[4] = { coin1, coin1, coin2, coin3 };
 
 	staticTiles[0] = CreateStaticTile(0, "Air", new Texture{}, false);
 	staticTiles[1] = CreateStaticTile(1, "Ground", groundTexture, true);
@@ -312,12 +313,16 @@ int main(int argc, char* argv[]) {
 		PollEvents(window);
 
 		GetStaticTileWithID(4)->texture = questionTextures[currentQuestionTexture];
+		coin = coinTextures[currentQuestionTexture];
 
 		timeSinceLastUpdate += deltaTime;
 
 		if (timeSinceLastUpdate > 0.2f) {
 			currentQuestionTexture++;
 			if (currentQuestionTexture > 3) currentQuestionTexture = 0;
+
+			currentCoinTexture++;
+			if (currentCoinTexture > 3) currentCoinTexture = 0;
 
 			timeSinceLastUpdate = 0;
 		}
@@ -461,85 +466,54 @@ void RenderScene() {
 		}
 	}
 
+	// Render preview.
 	Texture* activeTexture = GetStaticTileWithID(activeTileID)->texture;
 
-	Texture* newTexture = new Texture{};
-	newTexture->components = activeTexture->components;
-	newTexture->desiredComponents = activeTexture->desiredComponents;
-	newTexture->height = activeTexture->height;
-	newTexture->width = activeTexture->width;
+	previewTexture->components = activeTexture->components;
+	previewTexture->desiredComponents = activeTexture->desiredComponents;
+	previewTexture->height = activeTexture->height;
+	previewTexture->width = activeTexture->width;
 
-	newTexture->data = new unsigned char[newTexture->width * newTexture->height * newTexture->components];
+	previewTexture->data = new unsigned char[previewTexture->width * previewTexture->height * previewTexture->components];
 
-	std::copy(activeTexture->data, activeTexture->data + newTexture->width * newTexture->height * newTexture->components, newTexture->data);
+	std::copy(activeTexture->data, activeTexture->data + previewTexture->width * previewTexture->height * previewTexture->components, previewTexture->data);
 
-	for (int i = 0; i < newTexture->width * newTexture->height; i++) {
-		newTexture->data[i * newTexture->components + 3] *= 0.5f;
+	for (int i = 0; i < previewTexture->width * previewTexture->height; i++) {
+		previewTexture->data[i * previewTexture->components + 3] *= 0.5f;
 	}
 
 	int x = (mouseX - camera->x) / tileSize;
 	int y = (mouseY - camera->y) / tileSize;
 
-	if (x <= 255 && x >= 0 && y <= 14 && y >= 0 && mouseX > camera->x && mouseY > camera->y) Primitives::DrawTexture(window, (camera->x + ((mouseX - camera->x) / tileSize) * tileSize), camera->y + (((mouseY - camera->y) / tileSize) * tileSize), tileSize, tileSize, newTexture);
+	if (x <= 255 && x >= 0 && y <= 14 && y >= 0 && mouseX > camera->x && mouseY > camera->y) Primitives::DrawTexture(window, camera->x + x * tileSize, camera->y + y * tileSize, tileSize, tileSize, previewTexture);
 
-	Primitives::DrawLine(window, camera->x, 0, camera->x, window->height, 0xffffff);
+	// Render grid.
+	for (int i = 0; i <= (window->width / tileSize) + 1; i++) {
+		Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * i, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * i, window->height, 0xffffff);
+	}
+
+	for (int i = 0; i <= (window->height / tileSize) + 1; i++) {
+		Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * i, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * i, 0xffffff);
+	}
+
 	Primitives::DrawLine(window, camera->x - 1, 0, camera->x - 1, window->height, 0xffffff);
-	Primitives::DrawLine(window, camera->x + (tileSize * 256), 0, camera->x + (tileSize * 256), window->height, 0xffffff);
 	Primitives::DrawLine(window, camera->x + (tileSize * 256) + 1, 0, camera->x + (tileSize * 256) + 1, window->height, 0xffffff);
-	Primitives::DrawLine(window, 0, camera->y, window->width, camera->y, 0xffffff);
+
 	Primitives::DrawLine(window, 0, camera->y - 1, window->width, camera->y - 1, 0xffffff);
-	Primitives::DrawLine(window, 0, camera->y + (tileSize * 15), window->width, camera->y + (tileSize * 15), 0xffffff);
 	Primitives::DrawLine(window, 0, camera->y + (tileSize * 15) + 1, window->width, camera->y + (tileSize * 15) + 1, 0xffffff);
 
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize), 0, (camera->x + (-camera->x / tileSize) * tileSize), window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 2, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 2, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 3, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 3, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 4, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 4, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 5, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 5, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 6, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 6, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 7, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 7, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 8, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 8, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 9, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 9, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 10, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 10, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 11, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 11, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 12, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 12, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 13, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 13, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 14, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 14, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 15, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 15, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 16, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 16, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 17, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 17, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 18, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 18, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 19, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 19, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 20, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 20, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 21, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 21, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 22, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 22, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 23, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 23, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 24, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 24, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 25, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 25, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 26, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 26, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 27, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 27, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 28, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 28, window->height, 0xffffff);
-	Primitives::DrawLine(window, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 29, 0, (camera->x + (-camera->x / tileSize) * tileSize) + tileSize * 29, window->height, 0xffffff);
+	Primitives::RenderText(window, 90, 50, "MARIO", 6);
+	Primitives::RenderText(window, 90, 100, "000000", 6);
 
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize), window->width, (camera->y + (-camera->y / tileSize) * tileSize), 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 2, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 2, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 3, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 3, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 4, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 4, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 5, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 5, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 6, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 6, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 7, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 7, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 8, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 8, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 9, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 9, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 10, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 10, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 11, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 11, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 12, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 12, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 13, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 13, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 14, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 14, 0xffffff);
-	Primitives::DrawLine(window, 0, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 15, window->width, (camera->y + (-camera->y / tileSize) * tileSize) + tileSize * 15, 0xffffff);
+	Primitives::RenderText(window, window->width - (90 + (32 * 6)), 50, "TIME", 6);
+	Primitives::RenderText(window, window->width - (90 + (23 * 6)), 100, "375", 6);
 
-	DeleteTexture(newTexture);
+	Primitives::RenderText(window, (window->width / 2) + (2 * 8 * 6), 50, "WORLD!", 6);
+	Primitives::RenderText(window, (window->width / 2) + (3 * 8 * 6), 100, "1-1", 6);
+
+	Primitives::RenderText(window, (window->width / 2) - (7 * 8 * 6), 100, "*00", 6);
+
+	Primitives::DrawTexture(window, (window->width / 2) - (8 * 8 * 6), 90, 56, 56, coin);
 
 	SwapBuffers(window);
 }
