@@ -117,3 +117,12 @@ void SetWindowTitle(Window* window, const char* title) {
 
 	SetWindowTextA(window->hwnd, window->title);
 }
+
+void SetWindowIcon(Window* window, const char* iconFilePath) {
+	HICON hIcon = (HICON)LoadImageA(NULL, iconFilePath, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+
+	if (hIcon) {
+		SetClassLongPtr(window->hwnd, GCLP_HICON, (LONG_PTR)hIcon);
+		DestroyIcon(hIcon);
+	}
+}

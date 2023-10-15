@@ -41,4 +41,7 @@ __declspec(dllexport) void SetFramebufferSizeCallback(Window* window, void(*call
 /*Sets the title of the specified window.*/
 __declspec(dllexport) void SetWindowTitle(Window* window, const char* title);
 
+/*Sets the icon of the specified window.*/
+__declspec(dllexport) void SetWindowIcon(Window* window, const char* iconFilePath);
+
 #endif

@@ -268,6 +268,8 @@ int main(int argc, char* argv[]) {
 
 	window = InitializeWindow(1920, 1080, "Mario from Scratch | FPS: ");
 
+	SetWindowIcon(window, "D:\\Programs\\VSStudio\\MarioFromScratch\\Build\\marioEditorIcon.ico");
+
 	SetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
 	camera = CreateCamera(1, 1, 1.0f);

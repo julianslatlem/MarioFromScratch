@@ -44,14 +44,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>Game</TargetName>
+    <TargetName>Mario</TargetName>
     <LibraryPath>D:\Programs\VSStudio\MarioFromScratch\Engine\Build;$(LibraryPath)</LibraryPath>
     <IncludePath>D:\Programs\VSStudio\MarioFromScratch\Engine;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)Build\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>Game</TargetName>
+    <TargetName>Mario</TargetName>
     <LibraryPath>D:\Programs\VSStudio\MarioFromScratch\Engine\Build;$(LibraryPath)</LibraryPath>
     <IncludePath>D:\Programs\VSStudio\MarioFromScratch\Engine;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)Build\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -94,7 +96,18 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\load.cpp" />
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\load.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MarioFromScratch.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
