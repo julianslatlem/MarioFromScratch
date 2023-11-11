@@ -45,14 +45,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>Mario</TargetName>
-    <LibraryPath>D:\Programs\VSStudio\MarioFromScratch\Engine\Build;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Programs\VSStudio\MarioFromScratch\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Engine\Build;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Engine;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Build\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>Mario</TargetName>
-    <LibraryPath>D:\Programs\VSStudio\MarioFromScratch\Engine\Build;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Programs\VSStudio\MarioFromScratch\Engine;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Engine\Build;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Engine;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Build\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -61,13 +61,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Programs\VSStudio\MarioFromScratch\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Programs\VSStudio\MarioFromScratch\Engine\Build</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Build</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)textures" "$(TargetDir)textures" /E /Y</Command>
@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Programs\VSStudio\MarioFromScratch\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,7 +89,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\Programs\VSStudio\MarioFromScratch\Engine\Build</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\Build</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(ProjectDir)textures" "$(TargetDir)textures" /E /Y</Command>
