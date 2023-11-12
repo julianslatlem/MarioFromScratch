@@ -51,6 +51,8 @@ int main() {
 
 	coinUI = coinUI1;
 
+	PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\overworld.wav", 0);
+
 	while (!WindowShouldClose(window)) {
 		UpdateDeltaTime();
 		PollEvents(window);
@@ -64,6 +66,14 @@ int main() {
 			coinUI = coinUItextures[currentCoinUItexture];
 
 			timeSinceLastUpdate = 0;
+		}
+
+		if (Input::GetKeyPressed(KeyCode::LEFT_MOUSE_BUTTON)) {
+			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\coin.wav", 1);
+		}
+
+		if (Input::GetKeyPressed(KeyCode::RIGHT_MOUSE_BUTTON)) {
+			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\shrink.wav", 2);
 		}
 
 		RenderScene();

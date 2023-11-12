@@ -70,7 +70,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\Build</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)textures" "$(TargetDir)textures" /E /Y</Command>
+      <Command>xcopy "$(SolutionDir)textures" "$(TargetDir)textures" /E /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -92,7 +92,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\Build</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)textures" "$(TargetDir)textures" /E /Y</Command>
+      <Command>xcopy "$(SolutionDir)textures" "$(TargetDir)textures" /E /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

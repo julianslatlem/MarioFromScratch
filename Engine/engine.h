@@ -6,6 +6,7 @@
 #include "window.h"
 #include "renderer.h"
 #include "input.h"
+#include "sound.h"
 
 #include <iostream>
 #include <string>
