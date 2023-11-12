@@ -313,8 +313,6 @@ int main(int argc, char* argv[]) {
 	staticTiles[13] = CreateStaticTile(13, "Bush2-2", bush2_2, false);
 	staticTiles[14] = CreateStaticTile(14, "Bush2-3", bush2_3, false);
 
-	
-
 	ClearColor(window, 0x9494ff);
 
 	while (!WindowShouldClose(window)) {
@@ -402,6 +400,9 @@ int main(int argc, char* argv[]) {
 					pFileSave->Release();
 				}
 				CoUninitialize();
+			}
+			else {
+				std::cerr << "COM initialization failed." << std::endl;
 			}
 		}
 		if (Input::GetKeyDown(KeyCode::CTRL) && Input::GetKeyPressed(KeyCode::L)) {

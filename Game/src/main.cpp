@@ -15,6 +15,8 @@ int level1_3[256][15] = {};
 
 float tileSize = 100;
 
+float timeLeft = 375;
+
 void RenderScene();
 
 void FramebufferSizeCallback(int width, int height) {
@@ -65,11 +67,13 @@ int main() {
 
 			coinUI = coinUItextures[currentCoinUItexture];
 
+			timeLeft -= 0.5f;
+
 			timeSinceLastUpdate = 0;
 		}
 
-		if (Input::GetKeyPressed(KeyCode::LEFT_MOUSE_BUTTON)) {
-			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\coin.wav", 1);
+		if (Input::GetKeyPressed(KeyCode::SPACE)) {
+			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\jump.wav", 1);
 		}
 
 		if (Input::GetKeyPressed(KeyCode::RIGHT_MOUSE_BUTTON)) {
@@ -90,8 +94,10 @@ void RenderScene() {
 	Primitives::RenderText(window, 100, 100, "Mario", fontSize);
 	Primitives::RenderText(window, 100, 100 + (8 * fontSize), "000000", fontSize);
 
+	std::string timeLeftString = std::to_string((int)timeLeft);
+
 	Primitives::RenderText(window, window->width - (100 + (4 * 8 * fontSize)), 100, "Time", fontSize);
-	Primitives::RenderText(window, window->width - (100 + (3 * 8 * fontSize)), 100 + (8 * fontSize), "375", fontSize);
+	Primitives::RenderText(window, window->width - (100 + (3 * 8 * fontSize)), 100 + (8 * fontSize), timeLeftString.c_str(), fontSize);
 
 	Primitives::RenderText(window, (window->width / 2) + (3 * 8 * fontSize), 100, "World", fontSize);
 	Primitives::RenderText(window, (window->width / 2) + (4 * 8 * fontSize), 100 + (8 * fontSize), "1-1", fontSize);
