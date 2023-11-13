@@ -15,7 +15,7 @@ int level1_3[256][15] = {};
 
 float tileSize = 100;
 
-float timeLeft = 375;
+float timeLeft = 35;
 
 void RenderScene();
 
@@ -30,6 +30,28 @@ void UpdateDeltaTime() {
 }
 
 Texture* coinUI = new Texture{};
+
+
+
+
+
+
+
+
+float marioX = 100;
+float marioY = 500;
+
+float marioVelX = 0;
+float marioVelY = 0;
+
+
+
+
+bool marioIsGrounded = true;
+
+bool hasDied = false;
+
+
 
 int main() {
 	window = InitializeWindow(1280, 720, "Super Mario Bros.");
@@ -72,13 +94,48 @@ int main() {
 			timeSinceLastUpdate = 0;
 		}
 
-		if (Input::GetKeyPressed(KeyCode::SPACE)) {
+		if (Input::GetKeyDown(KeyCode::D)) {
+			marioVelX = min(marioVelX + 10.0f * deltaTime, 15.0f);
+		}
+		else if (Input::GetKeyDown(KeyCode::A)) {
+			marioVelX = max(marioVelX - 10.0f * deltaTime, -15.0f);
+		}
+		else {
+			if (marioVelX < 0) {
+				marioVelX += 10.0f * deltaTime;
+			}
+			else if (marioVelX > 0) {
+				marioVelX -= 10.0f * deltaTime;
+			}
+		}
+
+		if (marioY >= 500) {
+			marioVelY = 0;
+			marioY = 500;
+
+			marioIsGrounded = true;
+		}
+
+		if (timeLeft <= 0 && !hasDied) {
+			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\death.wav", 0);
+			hasDied = true;
+		}
+
+		if (Input::GetKeyPressed(KeyCode::SPACE) && marioIsGrounded) {
 			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\jump.wav", 1);
+			marioVelY = -30.0f;
+
+			marioIsGrounded = false;
 		}
 
 		if (Input::GetKeyPressed(KeyCode::RIGHT_MOUSE_BUTTON)) {
 			PlayAudio("D:\\Programs\\VSStudio\\MarioFromScratch\\sound\\shrink.wav", 2);
 		}
+
+		marioVelY += 50.0f * deltaTime;
+
+		marioX += marioVelX * 50 * deltaTime;
+		marioY += marioVelY * 30 * deltaTime;
 
 		RenderScene();
 	}
@@ -89,6 +146,8 @@ int main() {
 void RenderScene() {
 	Clear(window);
 
+	Primitives::DrawRect(window, marioX, marioY, 50, 80, 0xff0000);
+
 	int fontSize = 5;
 
 	Primitives::RenderText(window, 100, 100, "Mario", fontSize);
@@ -98,6 +157,7 @@ void RenderScene() {
 
 	Primitives::RenderText(window, window->width - (100 + (4 * 8 * fontSize)), 100, "Time", fontSize);
 	Primitives::RenderText(window, window->width - (100 + (3 * 8 * fontSize)), 100 + (8 * fontSize), timeLeftString.c_str(), fontSize);
+
 
 	Primitives::RenderText(window, (window->width / 2) + (3 * 8 * fontSize), 100, "World", fontSize);
 	Primitives::RenderText(window, (window->width / 2) + (4 * 8 * fontSize), 100 + (8 * fontSize), "1-1", fontSize);
